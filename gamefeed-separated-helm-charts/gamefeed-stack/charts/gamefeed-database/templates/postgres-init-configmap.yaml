@@ -1,0 +1,14 @@
+{{- if .Values.postgres.initdb.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.postgres.initdb.configMapName }}
+  namespace: {{ include "gamefeed-database.namespace" . }}
+  labels:
+    {{- include "gamefeed-database.labels" . | nindent 4 }}
+data:
+  init.sql: |
+    {{ range .Values.postgres.initdb.databases }}
+    CREATE DATABASE {{ . }};
+    {{ end }}
+{{- end }}

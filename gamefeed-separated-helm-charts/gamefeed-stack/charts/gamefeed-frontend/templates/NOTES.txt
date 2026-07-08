@@ -1,0 +1,3 @@
+Frontend installed.
+For local testing with NodePort:
+  kubectl get svc frontend -n {{ include "gamefeed-frontend.namespace" . }}

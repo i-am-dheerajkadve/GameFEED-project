@@ -1,0 +1,3 @@
+game-service installed in namespace {{ include "gamefeed-game-service.namespace" . }}.
+Check pods:
+  kubectl get pods -n {{ include "gamefeed-game-service.namespace" . }} -l app=game-service

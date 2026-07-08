@@ -1,0 +1,3 @@
+user-service installed in namespace {{ include "gamefeed-user-service.namespace" . }}.
+Check pods:
+  kubectl get pods -n {{ include "gamefeed-user-service.namespace" . }} -l app=user-service

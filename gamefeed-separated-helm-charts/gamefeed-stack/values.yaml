@@ -1,0 +1,46 @@
+global:
+  namespace: gamefeed
+
+namespace:
+  create: true
+  name: gamefeed
+
+# Override image tags from one place when needed.
+gamefeed-user-service:
+  image:
+    tag: latest
+
+gamefeed-game-service:
+  image:
+    tag: latest
+
+gamefeed-review-service:
+  image:
+    tag: latest
+
+gamefeed-comment-service:
+  image:
+    tag: latest
+
+gamefeed-api-gateway:
+  image:
+    tag: latest
+
+gamefeed-frontend:
+  image:
+    tag: "4"
+  service:
+    type: NodePort
+    nodePort: null
+
+gamefeed-database:
+  postgres:
+    persistence:
+      size: 5Gi
+      storageClassName: ""
+
+gamefeed-ingress:
+  ingress:
+    enabled: true
+    className: kong
+    host: gamefeed.local

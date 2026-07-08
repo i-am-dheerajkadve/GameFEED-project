@@ -1,0 +1,24 @@
+global:
+  namespace: ""
+
+namespace:
+  create: false
+  name: gamefeed
+
+resourceName: gamefeed-ingress
+
+ingress:
+  enabled: true
+  className: kong
+  annotations:
+    konghq.com/strip-path: "false"
+  host: gamefeed.local
+  paths:
+    - path: /api
+      pathType: Prefix
+      serviceName: api-gateway
+      servicePort: 8080
+    - path: /
+      pathType: Prefix
+      serviceName: frontend
+      servicePort: 80

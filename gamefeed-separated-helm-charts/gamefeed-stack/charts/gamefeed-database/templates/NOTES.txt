@@ -1,0 +1,3 @@
+Database installed.
+Check PostgreSQL:
+  kubectl get statefulset,pod,pvc -n {{ include "gamefeed-database.namespace" . }} -l app=postgres-db

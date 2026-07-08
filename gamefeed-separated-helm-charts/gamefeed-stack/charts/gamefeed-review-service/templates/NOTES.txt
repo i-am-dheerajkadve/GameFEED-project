@@ -1,0 +1,3 @@
+review-service installed in namespace {{ include "gamefeed-review-service.namespace" . }}.
+Check pods:
+  kubectl get pods -n {{ include "gamefeed-review-service.namespace" . }} -l app=review-service

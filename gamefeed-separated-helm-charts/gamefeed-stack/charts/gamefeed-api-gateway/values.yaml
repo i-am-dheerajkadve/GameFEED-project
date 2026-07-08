@@ -1,0 +1,62 @@
+global:
+  namespace: ""
+
+namespace:
+  create: false
+  name: gamefeed
+
+resourceName: api-gateway
+replicaCount: 2
+
+image:
+  repository: dheerajkadve/gamefeed-api-gateway
+  tag: latest
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 8080
+
+containerPort: 8080
+
+config:
+  name: gamefeed-config
+
+waitForServices:
+  enabled: true
+  image: busybox:1.36
+  sleepSeconds: 3
+  services:
+    - name: user-service
+      port: 8081
+    - name: game-service
+      port: 8082
+    - name: review-service
+      port: 8083
+    - name: comment-service
+      port: 8084
+
+podLabels: {}
+podAnnotations: {}
+
+probes:
+  readiness:
+    initialDelaySeconds: 20
+    periodSeconds: 10
+    failureThreshold: 12
+  liveness:
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    failureThreshold: 6
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 700m
+    memory: 768Mi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

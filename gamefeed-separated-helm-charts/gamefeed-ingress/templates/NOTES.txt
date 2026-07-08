@@ -1,0 +1,3 @@
+Ingress installed.
+Host: {{ .Values.ingress.host }}
+Class: {{ .Values.ingress.className }}

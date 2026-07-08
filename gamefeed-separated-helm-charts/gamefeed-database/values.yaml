@@ -1,0 +1,65 @@
+global:
+  namespace: ""
+
+namespace:
+  create: false
+  name: gamefeed
+
+resourceName: postgres-db
+
+secret:
+  create: true
+  name: gamefeed-secret
+  stringData:
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres
+    JWT_SECRET: "5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437"
+
+postgres:
+  image:
+    repository: postgres
+    tag: "16-alpine"
+    pullPolicy: IfNotPresent
+  port: 5432
+  database: postgres
+  pgdata: /var/lib/postgresql/data/pgdata
+
+  initdb:
+    enabled: true
+    configMapName: postgres-init-sql
+    databases:
+      - user_db
+      - game_db
+      - review_db
+      - comment_db
+
+  persistence:
+    enabled: true
+    size: 5Gi
+    accessModes:
+      - ReadWriteOnce
+    storageClassName: ""
+
+  readinessProbe:
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 6
+
+  livenessProbe:
+    initialDelaySeconds: 30
+    periodSeconds: 20
+    timeoutSeconds: 5
+    failureThreshold: 6
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

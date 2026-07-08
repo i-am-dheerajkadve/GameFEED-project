@@ -1,0 +1,53 @@
+global:
+  namespace: ""
+
+namespace:
+  create: false
+  name: gamefeed
+
+resourceName: frontend
+replicaCount: 2
+
+image:
+  repository: dheerajkadve/gamefeed-frontend
+  tag: "4"
+  pullPolicy: Always
+
+service:
+  type: NodePort
+  port: 80
+  nodePort: null
+
+containerPort: 3000
+
+nginx:
+  configMapName: frontend-nginx-conf
+  createConfigMap: true
+  listenPort: 3000
+  apiGatewayService: api-gateway
+  apiGatewayPort: 8080
+
+podLabels: {}
+podAnnotations: {}
+
+probes:
+  readiness:
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    failureThreshold: 6
+  liveness:
+    initialDelaySeconds: 20
+    periodSeconds: 20
+    failureThreshold: 6
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 300m
+    memory: 256Mi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
