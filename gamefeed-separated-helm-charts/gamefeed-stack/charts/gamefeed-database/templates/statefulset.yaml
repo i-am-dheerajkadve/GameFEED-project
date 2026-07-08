@@ -1,0 +1,102 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "gamefeed-database.resourceName" . }}
+  namespace: {{ include "gamefeed-database.namespace" . }}
+  labels:
+    app: {{ include "gamefeed-database.resourceName" . }}
+    {{- include "gamefeed-database.labels" . | nindent 4 }}
+spec:
+  serviceName: {{ include "gamefeed-database.resourceName" . }}
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "gamefeed-database.resourceName" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "gamefeed-database.resourceName" . }}
+    spec:
+      containers:
+        - name: postgres
+          image: "{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag }}"
+          imagePullPolicy: {{ .Values.postgres.image.pullPolicy }}
+          ports:
+            - name: postgres
+              containerPort: {{ .Values.postgres.port }}
+          env:
+            - name: POSTGRES_DB
+              value: {{ .Values.postgres.database | quote }}
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secret.name }}
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secret.name }}
+                  key: POSTGRES_PASSWORD
+            - name: PGDATA
+              value: {{ .Values.postgres.pgdata | quote }}
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+            {{ if .Values.postgres.initdb.enabled }}
+            - name: postgres-init
+              mountPath: /docker-entrypoint-initdb.d
+            {{ end }}
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U $POSTGRES_USER -d {{ .Values.postgres.database }}"]
+            initialDelaySeconds: {{ .Values.postgres.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.postgres.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.postgres.readinessProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.postgres.readinessProbe.failureThreshold }}
+          livenessProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U $POSTGRES_USER -d {{ .Values.postgres.database }}"]
+            initialDelaySeconds: {{ .Values.postgres.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.postgres.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.postgres.livenessProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.postgres.livenessProbe.failureThreshold }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{ if or .Values.postgres.initdb.enabled (not .Values.postgres.persistence.enabled) }}
+      volumes:
+        {{ if not .Values.postgres.persistence.enabled }}
+        - name: postgres-data
+          emptyDir: {}
+        {{ end }}
+        {{ if .Values.postgres.initdb.enabled }}
+        - name: postgres-init
+          configMap:
+            name: {{ .Values.postgres.initdb.configMapName }}
+        {{ end }}
+      {{ end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{ end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{ end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{ end }}
+  {{- if .Values.postgres.persistence.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-data
+      spec:
+        accessModes:
+          {{- toYaml .Values.postgres.persistence.accessModes | nindent 10 }}
+        {{ if .Values.postgres.persistence.storageClassName }}
+        storageClassName: {{ .Values.postgres.persistence.storageClassName | quote }}
+        {{ end }}
+        resources:
+          requests:
+            storage: {{ .Values.postgres.persistence.size }}
+  {{ end }}

@@ -1,0 +1,34 @@
+apiVersion: v2
+name: gamefeed-stack
+description: Umbrella Helm chart to deploy the complete GameFEED application stack
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+dependencies:
+  - name: gamefeed-database
+    version: 0.1.0
+    repository: "file://../gamefeed-database"
+  - name: gamefeed-config
+    version: 0.1.0
+    repository: "file://../gamefeed-config"
+  - name: gamefeed-user-service
+    version: 0.1.0
+    repository: "file://../gamefeed-user-service"
+  - name: gamefeed-game-service
+    version: 0.1.0
+    repository: "file://../gamefeed-game-service"
+  - name: gamefeed-review-service
+    version: 0.1.0
+    repository: "file://../gamefeed-review-service"
+  - name: gamefeed-comment-service
+    version: 0.1.0
+    repository: "file://../gamefeed-comment-service"
+  - name: gamefeed-api-gateway
+    version: 0.1.0
+    repository: "file://../gamefeed-api-gateway"
+  - name: gamefeed-frontend
+    version: 0.1.0
+    repository: "file://../gamefeed-frontend"
+  - name: gamefeed-ingress
+    version: 0.1.0
+    repository: "file://../gamefeed-ingress"

@@ -1,0 +1,3 @@
+comment-service installed in namespace {{ include "gamefeed-comment-service.namespace" . }}.
+Check pods:
+  kubectl get pods -n {{ include "gamefeed-comment-service.namespace" . }} -l app=comment-service

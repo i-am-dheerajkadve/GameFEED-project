@@ -1,0 +1,4 @@
+GameFEED stack installed.
+Check everything:
+  kubectl get all -n {{ .Values.global.namespace | default .Values.namespace.name }}
+  kubectl get ingress -n {{ .Values.global.namespace | default .Values.namespace.name }}

@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "gamefeed-api-gateway.resourceName" . }}
+  namespace: {{ include "gamefeed-api-gateway.namespace" . }}
+  labels:
+    app: {{ include "gamefeed-api-gateway.resourceName" . }}
+    {{- include "gamefeed-api-gateway.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "gamefeed-api-gateway.resourceName" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "gamefeed-api-gateway.resourceName" . }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{ end }}
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{ end }}
+    spec:
+      {{- if .Values.waitForServices.enabled }}
+      initContainers:
+        - name: wait-for-backend-services
+          image: {{ .Values.waitForServices.image }}
+          command:
+            - sh
+            - -c
+            - |
+              {{ range .Values.waitForServices.services }}
+              until nc -z {{ .name }} {{ .port }}; do
+                echo waiting for {{ .name }};
+                sleep {{ $.Values.waitForServices.sleepSeconds }};
+              done
+              {{ end }}
+      {{ end }}
+      containers:
+        - name: {{ include "gamefeed-api-gateway.resourceName" . }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.containerPort }}
+          envFrom:
+            - configMapRef:
+                name: {{ .Values.config.name }}
+          readinessProbe:
+            tcpSocket:
+              port: {{ .Values.containerPort }}
+            initialDelaySeconds: {{ .Values.probes.readiness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.readiness.periodSeconds }}
+            failureThreshold: {{ .Values.probes.readiness.failureThreshold }}
+          livenessProbe:
+            tcpSocket:
+              port: {{ .Values.containerPort }}
+            initialDelaySeconds: {{ .Values.probes.liveness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.liveness.periodSeconds }}
+            failureThreshold: {{ .Values.probes.liveness.failureThreshold }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{ end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{ end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{ end }}

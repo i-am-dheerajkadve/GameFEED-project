@@ -1,0 +1,15 @@
+global:
+  namespace: ""
+
+namespace:
+  create: false
+  name: gamefeed
+
+resourceName: gamefeed-config
+
+config:
+  data:
+    USER_SERVICE_URL: "http://user-service:8081"
+    GAME_SERVICE_URL: "http://game-service:8082"
+    REVIEW_SERVICE_URL: "http://review-service:8083"
+    COMMENT_SERVICE_URL: "http://comment-service:8084"

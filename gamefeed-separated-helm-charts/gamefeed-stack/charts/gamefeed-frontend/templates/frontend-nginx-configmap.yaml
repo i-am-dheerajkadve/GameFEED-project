@@ -1,0 +1,35 @@
+{{- if .Values.nginx.createConfigMap }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.nginx.configMapName }}
+  namespace: {{ include "gamefeed-frontend.namespace" . }}
+  labels:
+    {{- include "gamefeed-frontend.labels" . | nindent 4 }}
+data:
+  default.conf: |
+    server {
+        listen {{ .Values.nginx.listenPort }};
+        server_name _;
+        root /usr/share/nginx/html;
+        index index.html index.htm;
+
+        location / {
+            try_files $uri $uri/ /index.html;
+        }
+
+        location /api/ {
+            proxy_pass http://{{ .Values.nginx.apiGatewayService }}:{{ .Values.nginx.apiGatewayPort }};
+            proxy_http_version 1.1;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+
+        error_page 500 502 503 504 /50x.html;
+        location = /50x.html {
+            root /usr/share/nginx/html;
+        }
+    }
+{{- end }}

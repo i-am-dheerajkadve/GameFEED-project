@@ -1,0 +1,3 @@
+API Gateway installed.
+Make sure gamefeed-config exists before the gateway starts:
+  helm upgrade --install gamefeed-config ./gamefeed-config -n gamefeed --create-namespace

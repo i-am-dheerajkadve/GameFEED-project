@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "gamefeed-user-service.resourceName" . }}
+  namespace: {{ include "gamefeed-user-service.namespace" . }}
+  labels:
+    app: {{ include "gamefeed-user-service.resourceName" . }}
+    {{- include "gamefeed-user-service.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  selector:
+    app: {{ include "gamefeed-user-service.resourceName" . }}
+  ports:
+    - name: http
+      port: {{ .Values.service.port }}
+      targetPort: {{ .Values.containerPort }}
+      {{ if and (eq .Values.service.type "NodePort") .Values.service.nodePort }}
+      nodePort: {{ .Values.service.nodePort }}
+      {{ end }}
