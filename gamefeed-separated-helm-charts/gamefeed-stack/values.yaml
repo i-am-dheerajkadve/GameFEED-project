@@ -37,7 +37,7 @@ gamefeed-database:
   postgres:
     persistence:
       size: 5Gi
-      storageClassName: ""
+      storageClassName: local-path
 
 gamefeed-ingress:
   ingress:
