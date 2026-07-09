@@ -38,7 +38,7 @@ postgres:
     size: 5Gi
     accessModes:
       - ReadWriteOnce
-    storageClassName: ""
+    storageClassName: local-path
 
   readinessProbe:
     initialDelaySeconds: 10
